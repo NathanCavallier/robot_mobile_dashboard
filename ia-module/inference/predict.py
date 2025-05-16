@@ -3,13 +3,13 @@ import argparse
 import numpy as np
 from PIL import Image
 import tensorflow as tf
-from tensorflow.keras.applications import mobilenet_v2
-# Use mobilenet_v2.preprocess_input instead of preprocess_input
-
+# Import correct de preprocess_input pour MobileNetV2
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
+from tensorflow.keras.models import load_model
 
 def load_model_from_path(model_path: str):
     """Charge et renvoie un modèle Keras depuis un fichier .h5."""
-    return tf.keras.models.load_model(model_path)
+    return load_model(model_path)
 
 def preprocess_image(img_path: str, img_size: int):
     """
@@ -17,9 +17,9 @@ def preprocess_image(img_path: str, img_size: int):
     spécifique à MobileNetV2.
     """
     img = Image.open(img_path).convert('RGB')
-    arr = mobilenet_v2.preprocess_input(arr)       # normalisation MobileNetV2
+    img = img.resize((img_size, img_size))
     arr = np.array(img)
-    arr = mobilenet_v2.preprocess_input(arr)       # normalisation MobileNetV2
+    arr = preprocess_input(arr)       # normalisation MobileNetV2
     return np.expand_dims(arr, axis=0)
 
 def predict_trash(image_path: str, model, class_names: list, img_size: int):
@@ -38,7 +38,7 @@ def main():
     parser.add_argument("image_path", type=str,
                         help="Chemin de l'image à classifier")
     parser.add_argument("--model", type=str,
-                        default="ia-module/training/mobilenet_trained.h5",
+                        default="../training/mobilenet_trained.h5",
                         help="Chemin du modèle .h5 à charger")
     parser.add_argument("--classes", nargs="+",
                         default=['papier', 'plastique', 'verre', 'metal', 'autres'],
