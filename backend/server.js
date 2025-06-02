@@ -1,35 +1,60 @@
-// filepath: /Users/nathanimogo/Documents/GitHub/robot_mobile_dashboard/backend/server.js
-import express from 'express';
-import bodyParser from 'body-parser'; // Importation corrigée
-import robotRoutes from './routes/robotRoutes.js';
-import { connect } from 'mongoose';
-import cors from 'cors';
-import { config } from 'dotenv';
-config();
+// server.js
+import http from 'http'; // Nécessaire pour Socket.IO
+import dotenv from 'dotenv';
+ import { Server as SocketIOServer } from 'socket.io'; // Décommentez pour Socket.IO
 
-// Connexion à MongoDB
-const mongoURI = process.env.MONGO_URI;
-connect(mongoURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-  .then(() => {
-    console.log('Connecté à MongoDB');
-  })
-  .catch(err => {
-    console.error('Erreur de connexion à MongoDB', err);
-  });
+import app from './app.js'; // Importe l'application Express configurée
+import connectDB from './config/db.js'; // Importe la fonction de connexion à la BDD
 
-// Middleware
-const app = express();
-app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true })); // Utilisation de bodyParser
-app.use(bodyParser.json({ limit: '50mb' })); // Limite de taille pour les fichiers
-app.use(bodyParser.raw({ type: 'application/octet-stream', limit: '50mb' })); // Limite de taille pour les fichiers
+dotenv.config(); // S'assurer que les variables d'environnement sont chargées
 
-app.use('/api/robot', robotRoutes);
+const PORT = process.env.PORT || 5001;
 
-const PORT = 3001;
-app.listen(PORT, () => {
-  console.log(`Serveur lancé sur le port ${PORT}`);
-});
+// Fonction principale pour démarrer le serveur
+const startServer = async () => {
+  try {
+    // 1. Connexion à la base de données MongoDB
+    await connectDB();
+
+    // 2. Création du serveur HTTP (nécessaire pour Socket.IO)
+    const httpServer = http.createServer(app);
+
+    // 3. (Optionnel) Configuration de Socket.IO
+    const io = new SocketIOServer(httpServer, {
+       cors: {
+        origin: process.env.FRONTEND_URL || "http://localhost:3000",
+        methods: ["GET", "POST"]
+       }
+    });
+
+    // // Middleware pour attacher 'io' à l'objet 'req' pour y accéder dans les contrôleurs
+    app.use((req, res, next) => {
+       req.io = io;
+       next();
+    });
+
+    io.on('connection', (socket) => {
+       console.log('A user connected to WebSocket:', socket.id);
+
+       socket.on('disconnect', () => {
+         console.log('User disconnected:', socket.id);
+    });
+
+    // Vous pouvez ajouter des listeners pour des événements spécifiques du client ici
+       // socket.on('client_event', (data) => { ... });
+    });
+
+    // 4. Démarrage du serveur HTTP
+    httpServer.listen(PORT, () => {
+      console.log(
+        `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+      );
+    });
+
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

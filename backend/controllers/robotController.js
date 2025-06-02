@@ -1,4 +1,4 @@
-import RobotLog from "../models/robotLog.js"; // Assurez-vous que le chemin est correct
+import RobotLog from "../models/RobotLog.js"; // Assurez-vous que le chemin est correct
 import fs from 'fs';
 import path from 'path';
 
