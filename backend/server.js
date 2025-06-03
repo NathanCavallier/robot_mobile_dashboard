@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import app from './app.js'; // Importe l'application Express configurée
 import connectDB from './config/db.js'; // Importe la fonction de connexion à la BDD
 
+import { createDefaultAdmin } from './controllers/userController.js'; // Importer la fonction
+
 dotenv.config(); // S'assurer que les variables d'environnement sont chargées
 
 const PORT = process.env.PORT || 5001;
@@ -26,6 +28,9 @@ const startServer = async () => {
         methods: ["GET", "POST"]
        }
     });
+
+    // 3.1. Création d'un utilisateur admin par défaut si aucun n'existe
+    await createDefaultAdmin();
 
     // // Middleware pour attacher 'io' à l'objet 'req' pour y accéder dans les contrôleurs
     app.use((req, res, next) => {

@@ -7,12 +7,13 @@ import morgan from 'morgan'; // Logger HTTP (optionnel mais utile pour le dev)
 import logRoutes from './routes/logRoutes.js';
 import configRoutes from './routes/configRoutes.js';
 import stateRoutes from './routes/stateRoutes.js';
+import authRoutes from './routes/authRoutes.js'; // Importer les routes d'authentification
 // Importez vos anciennes routes si vous les gardez temporairement ou les fusionnez
 import oldRobotDataRoutes from './routes/robotData.js'; // Exemple
 import oldRobotRoutes from './routes/robotRoutes.js';   // Exemple
 
 // Import des middlewares personnalisés (si vous en avez)
-import { notFound, errorHandler } from './middleware/errorMiddleware.js'; // À créer
+import { notFound, errorHandler } from './middlewares/errorMiddleware.js'; // À créer
 
 dotenv.config(); // S'assurer que les variables d'environnement sont chargées
 
@@ -34,6 +35,7 @@ app.use(express.urlencoded({ extended: true })); // Pour parser les requêtes UR
 app.use('/api/logs', logRoutes);
 app.use('/api/robot', configRoutes);
 app.use('/api/robot', stateRoutes);
+app.use('/api/auth', authRoutes); // Routes d'authentification
 
 // Montage de vos anciennes routes (vous devrez peut-être ajuster les préfixes ou les refactoriser)
 // Exemple:

@@ -95,6 +95,43 @@ def predict_route():
     # 4. réponse immédiate avec l'ID de la tâche
     return jsonify(task_id=task.id), 202
 
+# ... (votre code Flask existant) ...
+
+@app.route('/predict/status/<task_id>', methods=['GET'])
+def task_status(task_id):
+    task = async_predict_trash.AsyncResult(task_id)
+    if task.state == 'PENDING':
+        response = {
+            'state': task.state,
+            'status': 'Pending...'
+        }
+    elif task.state == 'SUCCESS':
+        label, confidence = task.result  # Récupérer le résultat
+        response = {
+            'state': task.state,
+            'result': {
+                'className': label,
+                'confidence': confidence if confidence is not None else 'N/A (OpenAI)'
+            }
+        }
+    elif task.state == 'FAILURE':
+        response = {
+            'state': task.state,
+            'error': str(task.info)  # Récupérer l'erreur
+        }
+    else:
+        response = {
+            'state': task.state,
+            'status': task.info  # Autres états
+        }
+    return jsonify(response)
+# app.py - Serveur Flask pour la prédiction de déchets
+
+    
+        
+
+# ... (le reste de votre code Flask) ...
+
 if __name__ == '__main__':
     port = int(os.getenv("FLASK_PORT", 5001))
     app.run(host='0.0.0.0', port=port, debug=True)

@@ -1,8 +1,8 @@
-const mongoose = require('mongoose')
+import { connect } from 'mongoose';
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/robotDashboard', {
+    await connect(process.env.MONGO_URI || 'mongodb+srv://nathanimogo:p44LIA76WkgKfQbb@trobotik-db.678dx15.mongodb.net/?retryWrites=true&w=majority&appName=trobotik-db', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -13,4 +13,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB
+export default connectDB
