@@ -1,4 +1,4 @@
-// models/RobotLog.js
+// models/robotLog.js
 import mongoose from 'mongoose';
 
 const robotLogSchema = new mongoose.Schema({
