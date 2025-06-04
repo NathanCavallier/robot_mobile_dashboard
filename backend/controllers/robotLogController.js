@@ -1,5 +1,5 @@
 // controllers/robotLogController.js
-import RobotLog from '../models/RobotLog.js'; // Ajustez le chemin si nécessaire
+import RobotLog from '../models/robotLog.js'; // Ajustez le chemin si nécessaire
 
 /**
  * @desc    Crée un nouveau log robot
