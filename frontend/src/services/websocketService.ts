@@ -6,7 +6,7 @@ const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:5001';
 
 let socket: Socket | null = null;
 
-interface ServerToClientEvents {
+export interface ServerToClientEvents {
   // Événements que le serveur envoie au client
   robot_state_update: (state: RobotState) => void;
   new_robot_log: (log: RobotLog) => void;
@@ -19,6 +19,7 @@ interface ClientToServerEvents {
   // sauf pour des actions spécifiques via WebSocket au lieu de HTTP)
   // ex: 'request_robot_action': (action: { type: string; payload?: any }) => void;
 }
+
 
 export const getSocket = (): Socket<ServerToClientEvents, ClientToServerEvents> | null => {
   if (!socket && typeof window !== 'undefined') { // Assurer que le code s'exécute côté client
@@ -67,17 +68,33 @@ export const disconnectWebSocket = (): void => {
 };
 
 // Fonctions d'aide pour s'abonner et se désabonner facilement aux événements
-export function subscribeToEvent<T extends keyof ServerToClientEvents>(eventName: T,
-    callback: ServerToClientEvents[T]): (() => void) | undefined {
-    const currentSocket = getSocket();
-    if (currentSocket) {
-        currentSocket.on(eventName, callback)
-        // Retourne une fonction pour se désabonner
-        return () => currentSocket.off(eventName, callback);
-    }
-    console.warn('Socket not initialized, cannot subscribe to event:', eventName);
-    return undefined;
+// Surcharges pour chaque événement spécifique
+function subscribeToEvent(
+  eventName: 'robot_state_update',
+  callback: (state: RobotState) => void
+): (() => void) | undefined;
+function subscribeToEvent(
+  eventName: 'new_robot_log',
+  callback: (log: RobotLog) => void
+): (() => void) | undefined;
+// Ajoutez d'autres surcharges ici si vous avez plus d'événements dans ServerToClientEvents
+
+// Implémentation générique (utilisée par les surcharges)
+function subscribeToEvent<K extends keyof ServerToClientEvents>(
+  eventName: K,
+  callback: ServerToClientEvents[K]
+): (() => void) | undefined {
+  const currentSocket = getSocket();
+  if (currentSocket) {
+    // Ici, grâce aux surcharges, TypeScript devrait mieux inférer
+    currentSocket.on(eventName, callback);
+    return () => currentSocket.off(eventName, callback);
+  }
+  console.warn('Socket not initialized, cannot subscribe to event:', eventName);
+  return undefined;
 }
+
+export { subscribeToEvent }; // Exporter la fonction surchargée
 
 // Si vous avez besoin d'émettre des événements du client vers le serveur
 // export const emitEvent = <T extends keyof ClientToServerEvents>(

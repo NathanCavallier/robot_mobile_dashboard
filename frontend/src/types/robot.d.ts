@@ -98,3 +98,20 @@ export interface User {
 export interface AuthResponse extends User { 
     token: string; 
 }
+
+export interface InitiatePredictionResponse {
+  task_id: string;
+}
+
+export interface TaskStatusResponse {
+  state: 'PENDING' | 'SUCCESS' | 'FAILURE' | 'PROGRESS' | 'RETRY' | 'STARTED'; // États Celery
+  status?: string; // Message de statut ou progression
+  result?: WastePrediction; // Le résultat de la prédiction si SUCCESS
+  error?: string; // Message d'erreur si FAILURE
+}
+
+// Mettez à jour WastePrediction si nécessaire pour correspondre à la sortie de Flask
+export interface WastePrediction {
+  className: string;
+  confidence: number | string; // Peut être 'N/A (OpenAI)'
+}

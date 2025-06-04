@@ -7,6 +7,11 @@ import {
   RobotConfiguration,
   WastePrediction, // Assurez-vous que ce type est défini dans vos types/
   CommandPayload,  // Assurez-vous que ce type est défini
+  User, // Assurez-vous que ce type est défini dans vos types/
+  TaskStatusResponse, // Si vous avez un type pour la réponse de statut de tâche
+  LoginCredentials, // Assurez-vous que ce type est défini dans vos types/
+  AuthResponse, // Assurez-vous que ce type est défini dans vos types/
+  InitiatePredictionResponse, // Si vous avez un type pour l'initiation de la prédiction
 } from '../types/robot'; // Assurez-vous que les chemins et types sont corrects
 
 // --- Fonctions pour Robot Logs ---
@@ -80,23 +85,51 @@ export const predictWasteFromImage = async (formData: FormData): Promise<WastePr
 
 // Ajoutez d'autres fonctions d'API selon les besoins de votre backend
 // Par exemple pour l'authentification :
-// export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-//   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-//   if (response.data.token && typeof window !== 'undefined') {
-//     localStorage.setItem('authToken', response.data.token);
-//   }
-//   return response.data;
-// };
+ export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+   if (response.data.token && typeof window !== 'undefined') {
+     localStorage.setItem('authToken', response.data.token);
+   }
+   return response.data;
+ };
 
-// export const logout = () => {
-//   if (typeof window !== 'undefined') {
-//     localStorage.removeItem('authToken');
-//   }
-//   // Optionnel: appeler une route backend de déconnexion si nécessaire
-//   // await apiClient.post('/auth/logout');
-// };
+export const logout = async () => {
+   if (typeof window !== 'undefined') {
+     localStorage.removeItem('authToken');
+   }
+   // Optionnel: appeler une route backend de déconnexion si nécessaire
+   await apiClient.post('/auth/logout');
+};
 
-// export const getLoggedInUserProfile = async (): Promise<User> => {
-//   const response = await apiClient.get<User>('/auth/profile');
-//   return response.data;
-// }
+export const getLoggedInUserProfile = async (): Promise<User> => {
+  const response = await apiClient.get<User>('/auth/profile');
+  return response.data;
+}
+
+
+/**
+ * @desc Envoie une image pour prédiction et retourne l'ID de la tâche asynchrone.
+ */
+export const initiateWastePrediction = async (formData: FormData): Promise<InitiatePredictionResponse> => {
+  // L'URL de base de apiClient pointe vers votre backend Node.js.
+  // Si Flask est sur un autre port/domaine, configurez une instance Axios séparée ou ajustez la baseURL.
+  // Pour cet exemple, supposons que NEXT_PUBLIC_FLASK_API_URL est défini dans .env.local
+  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'; // Port par défaut de Flask
+
+  const response = await apiClient.post<InitiatePredictionResponse>(`${flaskApiUrl}/predict`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data;
+};
+
+/**
+ * @desc Interroge le statut d'une tâche de prédiction.
+ */
+export const getWastePredictionResult = async (taskId: string): Promise<TaskStatusResponse> => {
+  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000';
+
+  const response = await apiClient.get<TaskStatusResponse>(`${flaskApiUrl}/predict/status/${taskId}`);
+  return response.data;
+};
