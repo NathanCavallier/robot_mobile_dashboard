@@ -1,8 +1,13 @@
 import { connect } from 'mongoose';
 
 const connectDB = async () => {
+  const { MONGO_URI } = process.env;
+  if (!MONGO_URI) {
+    throw new Error('MONGO_URI environment variable not defined');
+  }
+
   try {
-    await connect(process.env.MONGO_URI || 'mongodb+srv://nathanimogo:p44LIA76WkgKfQbb@trobotik-db.678dx15.mongodb.net/?retryWrites=true&w=majority&appName=trobotik-db', {
+    await connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
