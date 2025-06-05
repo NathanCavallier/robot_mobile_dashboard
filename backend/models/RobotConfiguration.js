@@ -55,6 +55,6 @@ const robotConfigurationSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-const RobotConfiguration = mongoose.models.RobotConfiguration || mongoose.model('RobotConfiguration', robotConfigurationSchema);
+const RobotConfiguration = mongoose.model('RobotConfiguration', robotConfigurationSchema);
 
 export default RobotConfiguration;
