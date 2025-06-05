@@ -59,22 +59,6 @@ export interface RobotConfiguration {
     updatedAt: string;
 }
 
-export interface InitiatePredictionResponse {
-  task_id: string;
-}
-
-export interface TaskStatusResponse {
-  state: 'PENDING' | 'SUCCESS' | 'FAILURE' | 'PROGRESS' | 'RETRY' | 'STARTED'; // États Celery
-  status?: string; // Message de statut ou progression
-  result?: WastePrediction; // Le résultat de la prédiction si SUCCESS
-  error?: string; // Message d'erreur si FAILURE
-}
-
-// Mettez à jour WastePrediction si nécessaire pour correspondre à la sortie de Flask
-export interface WastePrediction {
-  className: string;
-  confidence: number | string; // Peut être 'N/A (OpenAI)'
-}
 
 export interface CommandPayload {
     command: string; // e.g., 'MOVE_FORWARD', 'TOGGLE_GRIPPER', 'SET_MODE'
