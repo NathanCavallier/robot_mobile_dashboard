@@ -167,6 +167,7 @@ Thumbs.db
 .env
 .env.local
 .env.*
+!.env.example
 
 # Node (si frontend React présent)
 node_modules/
