@@ -10,7 +10,7 @@ import { createDefaultAdmin } from './controllers/userController.js'; // Importe
 
 dotenv.config(); // S'assurer que les variables d'environnement sont chargées
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002; // Port par défaut pour le serveur
 
 // Fonction principale pour démarrer le serveur
 const startServer = async () => {

@@ -31,19 +31,28 @@ const Sidebar = ({ className }: { className?: string }) => {
         </Link>
       </div>
       <nav className="flex-1 space-y-1 p-4">
-        {navItems.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary hover:bg-muted dark:hover:bg-gray-800",
-              pathname === item.href && "bg-muted text-primary dark:bg-gray-800"
-            )}
-          >
-            <item.icon className="h-4 w-4" />
-            {item.label}
-          </Link>
-        ))}
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              aria-current={isActive ? 'page' : undefined}
+              className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2 transition-all relative",
+              isActive
+                ? "bg-primary text-dark dark:bg-primary/80 dark:text-white ring-2 ring-primary"
+                : "text-muted-foreground hover:text-primary hover:bg-muted dark:hover:bg-gray-800"
+              )}
+            >
+              <item.icon className="h-4 w-4" />
+              {item.label}
+              {isActive && (
+              <span className="absolute left-3 right-3 -bottom-1 h-0.5 bg-primary rounded" />
+              )}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

@@ -42,9 +42,18 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning = {true}> {/* suppressHydrationWarning pour le thème */}
-      <body>
+      <body
+        className={cn(
+          "min-h-screen flex flex-col",
+          geistSans.variable,
+          geistMono.variable,
+          inter.variable,
+          "bg-background text-foreground"
+        )}
+      >
         <ThemeProvider
-          defaultTheme="light"
+          defaultTheme="system" // Peut être 'light', 'dark' ou 'system'
+          // Vous pouvez ajouter d'autres props ici si nécessaire
           storageKey="tribotik-theme"
         >
           <RobotProvider> {/* RobotProvider enveloppe les parties qui ont besoin de son contexte */}

@@ -1,4 +1,4 @@
-// src/app/(dashboard)/page.tsx
+// src/app/dashboard/page.tsx
 "use client"; // Nécessite des hooks client
 
 import AiRecognitionPanel from "@/components/features/robot-status/AiRecognitionPanel";
