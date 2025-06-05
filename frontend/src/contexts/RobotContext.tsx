@@ -2,14 +2,13 @@
 "use client"; // Ce composant utilise des hooks et du state, il doit être un Client Component
 
 import React, { createContext, useState, useEffect, ReactNode, useCallback } from 'react';
-import { RobotState, RobotLog, RobotConfiguration, CommandPayload } from '../types/robot';
+import { RobotState, RobotLog, RobotConfiguration, CommandPayload, PaginatedRobotLogs } from '../types/robot';
 import {
   getRobotCurrentState,
   getRobotConfig,
   sendRobotCommand,
   updateRobotConfig as apiUpdateRobotConfig,
   getRobotLogs as apiGetRobotLogs,
-  PaginatedRobotLogs
 } from '../services/robotService';
 import { connectWebSocket, subscribeToEvent, disconnectWebSocket } from '../services/websocketService';
 
@@ -113,7 +112,7 @@ export const RobotProvider: React.FC<RobotProviderProps> = ({ children }) => {
     setIsLoadingLogs(true);
     setErrorLogs(null);
     try {
-      const data = await apiGetRobotLogs(page, limit, filters);
+      const data = await apiGetRobotLogs({ page, limit, filters });
       setLogs(data.logs);
       setPaginatedLogsInfo({
         currentPage: data.currentPage,

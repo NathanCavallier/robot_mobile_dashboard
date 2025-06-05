@@ -20,23 +20,20 @@ export const createRobotLogEntry = async (logData: Partial<RobotLog>): Promise<R
   return response.data;
 };
 
-export const getRobotLogs = async (
-  page: number = 1,
-  limit: number = 20,
-  filters: Record<string, any> = {} // ex: { eventType: 'DETECTION' }
-): Promise<PaginatedRobotLogs> => {
+export async function getRobotLogs({ page = 1, limit = 20, filters = {} // ex: { eventType: 'DETECTION' }
+}: { page?: number; limit?: number; filters?: Record<string, any>; } = {}): Promise<PaginatedRobotLogs> {
   const response = await apiClient.get<PaginatedRobotLogs>('/logs', {
     params: { page, limit, ...filters },
   });
   return response.data;
-};
+}
 
 // --- Fonctions pour Robot State ---
-export const getRobotCurrentState = async (robotId?: string): Promise<RobotState> => {
+export async function getRobotCurrentState(robotId?: string): Promise<RobotState> {
   const params = robotId ? { robotId } : {};
   const response = await apiClient.get<RobotState>('/robot/state', { params });
   return response.data;
-};
+}
 
 // Note: La mise à jour de l'état est généralement faite par le robot/backend,
 // mais vous pourriez avoir une route pour des mises à jour spécifiques depuis le dashboard si nécessaire.
@@ -85,20 +82,20 @@ export const predictWasteFromImage = async (formData: FormData): Promise<WastePr
 
 // Ajoutez d'autres fonctions d'API selon les besoins de votre backend
 // Par exemple pour l'authentification :
- export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
-   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-   if (response.data.token && typeof window !== 'undefined') {
-     localStorage.setItem('authToken', response.data.token);
-   }
-   return response.data;
- };
+export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
+  const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
+  if (response.data.token && typeof window !== 'undefined') {
+    localStorage.setItem('authToken', response.data.token);
+  }
+  return response.data;
+};
 
 export const logout = async () => {
-   if (typeof window !== 'undefined') {
-     localStorage.removeItem('authToken');
-   }
-   // Optionnel: appeler une route backend de déconnexion si nécessaire
-   await apiClient.post('/auth/logout');
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('authToken');
+  }
+  // Optionnel: appeler une route backend de déconnexion si nécessaire
+  await apiClient.post('/auth/logout');
 };
 
 export const getLoggedInUserProfile = async (): Promise<User> => {

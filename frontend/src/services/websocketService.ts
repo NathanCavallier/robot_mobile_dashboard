@@ -18,6 +18,8 @@ interface ClientToServerEvents {
   // Événements que le client peut envoyer au serveur (moins courant pour le dashboard,
   // sauf pour des actions spécifiques via WebSocket au lieu de HTTP)
   // ex: 'request_robot_action': (action: { type: string; payload?: any }) => void;
+  request_robot_state: () => void; // Pour demander l'état du robot
+  request_robot_logs: (filters?: Record<string, any>) => void; // Pour demander les logs du robot
 }
 
 
@@ -86,9 +88,9 @@ function subscribeToEvent<K extends keyof ServerToClientEvents>(
 ): (() => void) | undefined {
   const currentSocket = getSocket();
   if (currentSocket) {
-    // Ici, grâce aux surcharges, TypeScript devrait mieux inférer
-    currentSocket.on(eventName, callback);
-    return () => currentSocket.off(eventName, callback);
+    // on/off must recevoir exactement la même référence de fonction
+    currentSocket.on(eventName, callback as any);
+    return () => currentSocket.off(eventName, callback as any);
   }
   console.warn('Socket not initialized, cannot subscribe to event:', eventName);
   return undefined;
@@ -97,17 +99,17 @@ function subscribeToEvent<K extends keyof ServerToClientEvents>(
 export { subscribeToEvent }; // Exporter la fonction surchargée
 
 // Si vous avez besoin d'émettre des événements du client vers le serveur
-// export const emitEvent = <T extends keyof ClientToServerEvents>(
-//   eventName: T,
-//   data: Parameters<ClientToServerEvents[T]>[0]
-// ): void => {
-//   const currentSocket = getSocket();
-//   if (currentSocket && currentSocket.connected) {
-//     currentSocket.emit(eventName, data);
-//   } else {
-//     console.warn('Socket not connected, cannot emit event:', eventName);
-//   }
-// };
+export const emitEvent = <T extends keyof ClientToServerEvents>(
+  eventName: T,
+  ...args: Parameters<ClientToServerEvents[T]>
+): void => {
+  const currentSocket = getSocket();
+  if (currentSocket && currentSocket.connected) {
+    currentSocket.emit(eventName, ...args);
+  } else {
+    console.warn('Socket not connected, cannot emit event:', eventName);
+  }
+};
 
 // Assurez-vous de déconnecter le socket lorsque l'application se ferme ou que l'utilisateur se déconnecte
 // Cela peut être géré dans un layout global ou un contexte d'authentification.

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { RobotProvider } from '@/contexts/RobotContext';
-import "./globals.css";
+import { Toaster } from 'sonner'; // Si vous utilisez Sonner pour les notifications
+import './globals.css';
+import { cn } from '@/lib/utils'; // Ajustez le chemin
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,6 +15,8 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+const inter = Inter({ subsets: ['latin'], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Tableau de bord TriboTik",
@@ -37,7 +41,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fr" suppressHydrationWarning> {/* suppressHydrationWarning pour le thème */}
+    <html lang="en" suppressHydrationWarning = {true}> {/* suppressHydrationWarning pour le thème */}
       <body>
         <ThemeProvider
           defaultTheme="light"
@@ -45,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           <RobotProvider> {/* RobotProvider enveloppe les parties qui ont besoin de son contexte */}
             {children}
+            <Toaster richColors position="top-right" /> {/* Pour les notifications (Sonner) */}
           </RobotProvider>
         </ThemeProvider>
       </body>
