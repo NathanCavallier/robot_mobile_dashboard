@@ -1,8 +1,5 @@
-import { subscribeToEvent, getSocket as originalGetSocket } from './websocketService';
-import type { ServerToClientEvents } from './websocketService';
-
-
-// filepath: /Users/nathanimogo/Documents/GitHub/robot_mobile_dashboard/frontend/src/services/websocketService.test.ts
+import { subscribeToEvent } from '../../src/services/websocketService';
+import type { ServerToClientEvents } from '../../src/services/websocketService';
 
 describe('subscribeToEvent', () => {
     let onMock: jest.Mock, offMock: jest.Mock;
@@ -21,7 +18,7 @@ describe('subscribeToEvent', () => {
     it('should register and unregister event handlers when socket is available', () => {
         // Arrange: spy on getSocket to return a fake socket
         const fakeSocket = { on: onMock, off: offMock };
-        jest.spyOn(require('./websocketService'), 'getSocket').mockReturnValue(fakeSocket as any);
+        jest.spyOn(require('../../src/services/websocketService'), 'getSocket').mockReturnValue(fakeSocket as any);
 
         // Act: subscribe to an event
         const unsubscribe = subscribeToEvent('robot_state_update', dummyCallback as ServerToClientEvents['robot_state_update']);
@@ -37,7 +34,7 @@ describe('subscribeToEvent', () => {
 
     it('should return undefined and warn when socket is not initialized', () => {
         // Arrange: spy on getSocket to return null
-        jest.spyOn(require('./websocketService'), 'getSocket').mockReturnValue(null);
+        jest.spyOn(require('../../src/services/websocketService'), 'getSocket').mockReturnValue(null);
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { });
 
         // Act: attempt to subscribe
