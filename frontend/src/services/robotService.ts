@@ -111,7 +111,7 @@ export const initiateWastePrediction = async (formData: FormData): Promise<Initi
   // L'URL de base de apiClient pointe vers votre backend Node.js.
   // Si Flask est sur un autre port/domaine, configurez une instance Axios séparée ou ajustez la baseURL.
   // Pour cet exemple, supposons que NEXT_PUBLIC_FLASK_API_URL est défini dans .env.local
-  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000'; // Port par défaut de Flask
+  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5002'; // Port par défaut de Flask
 
   const response = await apiClient.post<InitiatePredictionResponse>(`${flaskApiUrl}/predict`, formData, {
     headers: {
@@ -125,7 +125,7 @@ export const initiateWastePrediction = async (formData: FormData): Promise<Initi
  * @desc Interroge le statut d'une tâche de prédiction.
  */
 export const getWastePredictionResult = async (taskId: string): Promise<TaskStatusResponse> => {
-  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5000';
+  const flaskApiUrl = process.env.NEXT_PUBLIC_FLASK_API_URL || 'http://localhost:5002'; // Port par défaut de Flask
 
   const response = await apiClient.get<TaskStatusResponse>(`${flaskApiUrl}/predict/status/${taskId}`);
   return response.data;

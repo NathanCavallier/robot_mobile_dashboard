@@ -3,65 +3,70 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   initiateWastePrediction,
   getWastePredictionResult,
-} from '../services/robotService';
-import { WastePrediction, TaskStatusResponse, InitiatePredictionResponse } from '../types/robot';
+} from '../services/robotService'; // Vérifiez le chemin
+import { WastePrediction, TaskStatusResponse, InitiatePredictionResponse } from '../types/robot'; // Vérifiez le chemin
+import axios from 'axios';
 
-const POLLING_INTERVAL = 2000; // Interroger toutes les 2 secondes
-const MAX_POLLS = 30; // Maximum 30 tentatives (1 minute avec intervalle de 2s)
+const POLLING_INTERVAL = 4000; // Interroger toutes les 2 secondes
+const MAX_POLLS = 40; // Maximum 30 tentatives (1 minute avec intervalle de 2s)
 
 export const useWastePrediction = () => {
   const [prediction, setPrediction] = useState<WastePrediction | null>(null);
   const [taskStatus, setTaskStatus] = useState<TaskStatusResponse | null>(null);
   const [taskId, setTaskId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false); // Vrai pendant l'upload et le polling
-  const [isUploading, setIsUploading] = useState(false); // Spécifiquement pour l'upload initial
+  const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pollCountRef = useRef<number>(0);
 
-  const clearPolling = () => {
+  const clearPolling = useCallback(() => {
     if (pollIntervalRef.current) {
       clearInterval(pollIntervalRef.current);
       pollIntervalRef.current = null;
     }
     pollCountRef.current = 0;
-  };
+  }, []);
 
   const pollForResults = useCallback((currentTaskId: string) => {
-    clearPolling(); // S'assurer qu'il n'y a pas de polling en double
+    clearPolling();
 
     pollIntervalRef.current = setInterval(async () => {
       if (pollCountRef.current >= MAX_POLLS) {
         setError('Prediction timed out. Please try again.');
         setIsLoading(false);
         clearPolling();
+        setTaskStatus(prev => ({ ...prev, state: 'TIMEOUT', status: 'Polling timed out' } as TaskStatusResponse));
         return;
       }
 
       pollCountRef.current += 1;
+      console.log(`Polling attempt: ${pollCountRef.current} for task ${currentTaskId}`);
 
       try {
         const statusResponse = await getWastePredictionResult(currentTaskId);
         setTaskStatus(statusResponse);
+        console.log('Poll response:', statusResponse);
 
         if (statusResponse.state === 'SUCCESS') {
           setPrediction(statusResponse.result || null);
           setIsLoading(false);
           clearPolling();
         } else if (statusResponse.state === 'FAILURE') {
-          setError(statusResponse.error || statusResponse.status || 'Prediction failed.');
+          setError(statusResponse.error || String(statusResponse.status) || 'Prediction failed.');
           setIsLoading(false);
           clearPolling();
         }
-        // Si PENDING ou autre, on continue le polling (géré par l'intervalle)
+        // Si PENDING ou autre état non final, on continue le polling
       } catch (err: any) {
+        console.error('Polling error:', err);
         setError(err.message || 'Failed to get prediction status.');
         setIsLoading(false);
         clearPolling();
       }
     }, POLLING_INTERVAL);
-  }, []);
+  }, [clearPolling]);
 
 
   const submitImageForPrediction = useCallback(
@@ -77,27 +82,32 @@ export const useWastePrediction = () => {
       try {
         const initResponse: InitiatePredictionResponse = await initiateWastePrediction(formData);
         setTaskId(initResponse.task_id);
-        setIsUploading(false); // L'upload est terminé, le polling commence
-        // Mettre à jour l'état initial de la tâche
-        setTaskStatus({ state: 'PENDING', status: 'Task initiated, awaiting processing...' });
-        pollForResults(initResponse.task_id); // Commencer le polling
-        return initResponse; // Retourner la réponse initiale si le composant en a besoin
+        setIsUploading(false);
+        setTaskStatus({ state: 'PENDING', status: `Task ${initResponse.task_id} initiated, awaiting processing...` });
+        pollForResults(initResponse.task_id);
+        return initResponse;
       } catch (err: any) {
-        setError(err.message || 'Failed to initiate prediction task.');
+        console.error('Error initiating prediction:', err);
+        let errorMessage = 'Failed to initiate prediction task.';
+        if (axios.isAxiosError(err) && err.response) {
+          errorMessage = err.response.data?.error || err.response.data?.message || err.message;
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
+        }
+        setError(errorMessage);
         setIsUploading(false);
         setIsLoading(false);
-        throw err;
+        throw err; // Propager pour que le composant puisse aussi réagir si besoin
       }
     },
-    [pollForResults]
+    [pollForResults, clearPolling] // clearPolling ajouté aux dépendances
   );
 
-  // Nettoyage au démontage du composant utilisant ce hook
   useEffect(() => {
     return () => {
-      clearPolling();
+      clearPolling(); // Nettoyage au démontage
     };
-  }, []);
+  }, [clearPolling]); // clearPolling ajouté aux dépendances
 
   return {
     prediction,

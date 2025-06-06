@@ -88,9 +88,9 @@ export interface InitiatePredictionResponse {
 }
 
 export interface TaskStatusResponse {
-  state: 'PENDING' | 'SUCCESS' | 'FAILURE' | 'PROGRESS' | 'RETRY' | 'STARTED'; // États Celery
-  status?: string; // Message de statut ou progression
-  result?: WastePrediction; // Le résultat de la prédiction si SUCCESS
+  state: 'PENDING' | 'SUCCESS' | 'FAILURE' | 'PROGRESS' | 'RETRY' | 'STARTED' | string; // Celery states + string pour autres
+  status?: string | any; // Peut être un message de statut ou task.info (qui peut être un objet)
+  result?: WastePrediction;
   error?: string; // Message d'erreur si FAILURE
 }
 

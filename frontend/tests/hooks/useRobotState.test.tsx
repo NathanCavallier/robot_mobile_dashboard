@@ -5,8 +5,9 @@ import { RobotContext } from '../../src/contexts/RobotContext';
 
 describe('useRobot', () => {
   it('throws when used outside of RobotProvider', () => {
-    const { result } = renderHook(() => useRobot());
-    expect(result.error).toEqual(Error('useRobot must be used within a RobotProvider'));
+    expect(() => renderHook(() => useRobot())).toThrow(
+      'useRobot must be used within a RobotProvider'
+    );
   });
 
   it('returns context value from provider', () => {

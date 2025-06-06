@@ -2,6 +2,7 @@ import os, sys
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 from celery import Celery
+from flask_cors import CORS
 
 # pour charger ton module inference
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -21,6 +22,8 @@ openai.api_key = api_key
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = "uploads"
+CORS(app, resources={r"/predict/*": {"origins": "http://localhost:3000"}}) # Autoriser le frontend
+
 
 # charger modèle local
 MODEL_PATH  = os.getenv("MODEL_PATH", "./training/mobilenet_trained.h5")
@@ -60,7 +63,16 @@ def fallback_openai(image_path: str):
 
 
 # Configuration de Celery
-celery = Celery(app.name, broker='redis://localhost:6379/0')
+celery = Celery(
+    app.name,
+    broker='redis://localhost:6379/0',
+    backend='redis://localhost:6379/0'  # Ajoutez cette ligne pour le backend de résultats
+)
+celery.conf.update(
+    task_serializer='json',
+    result_serializer='json',
+    accept_content=['json']
+)
 
 @celery.task
 def async_predict_trash(image_path: str):
@@ -133,6 +145,6 @@ def task_status(task_id):
 # ... (le reste de votre code Flask) ...
 
 if __name__ == '__main__':
-    port = int(os.getenv("FLASK_PORT", 5001))
+    port = int(os.getenv("FLASK_PORT", 5002))  # Port par défaut 5002
     app.run(host='0.0.0.0', port=port, debug=True)
 # Note : pour le déploiement, il faudra ajouter un serveur WSGI (ex: gunicorn) et un reverse proxy (ex: nginx)

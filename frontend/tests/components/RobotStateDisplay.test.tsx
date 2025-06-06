@@ -1,5 +1,9 @@
+// filepath: [RobotStateDisplay.test.tsx](http://_vscodecontentref_/2)
+/// <reference types="@testing-library/jest-dom" />
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
 import RobotStateDisplay from '../../src/components/features/robot-status/RobotStateDisplay';
 import * as useRobotHook from '../../src/hooks/useRobotState';
 
