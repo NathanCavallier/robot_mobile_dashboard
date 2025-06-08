@@ -30,13 +30,3 @@ It defines the connection endpoints used by the dashboard:
 - **NEXT_PUBLIC_WS_URL** – WebSocket server URL.
 - **NEXT_PUBLIC_FLASK_API_URL** – URL of the Flask API for image prediction.
 
-## Testing
-
-To run the backend test suite:
-
-```bash
-cd backend
-npm test
-```
-
-Jest will execute all files under `backend/tests/`.
