@@ -9,8 +9,6 @@ import configRoutes from './routes/configRoutes.js';
 import stateRoutes from './routes/stateRoutes.js';
 import authRoutes from './routes/authRoutes.js'; // Importer les routes d'authentification
 // Importez vos anciennes routes si vous les gardez temporairement ou les fusionnez
-import oldRobotDataRoutes from './routes/robotData.js'; // Exemple
-import oldRobotRoutes from './routes/robotRoutes.js';   // Exemple
 
 // Import des middlewares personnalisés (si vous en avez)
 import { notFound, errorHandler } from './middlewares/errorMiddleware.js'; // À créer
@@ -36,11 +34,6 @@ app.use('/api/logs', logRoutes);
 app.use('/api/robot', configRoutes);
 app.use('/api/robot', stateRoutes);
 app.use('/api/auth', authRoutes); // Routes d'authentification
-
-// Montage de vos anciennes routes (vous devrez peut-être ajuster les préfixes ou les refactoriser)
-// Exemple:
-app.use('/api/old', oldRobotDataRoutes);   // Préfixé pour éviter les conflits
-app.use('/api/old/robot', oldRobotRoutes); // Préfixé
 
 // Route de test simple
 app.get('/api/health', (req, res) => {
