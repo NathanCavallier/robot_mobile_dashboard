@@ -30,12 +30,3 @@ It defines the connection endpoints used by the dashboard:
 - **NEXT_PUBLIC_WS_URL** – WebSocket server URL.
 - **NEXT_PUBLIC_FLASK_API_URL** – URL of the Flask API for image prediction.
 
-### API Endpoints
-
-The backend exposes the following main routes:
-
-- `/api/logs` – operations related to robot logs.
-- `/api/robot` – configuration and state management.
-- `/api/auth` – user authentication.
-
-Legacy routes under `/api/old` were removed in favor of the endpoints above.
